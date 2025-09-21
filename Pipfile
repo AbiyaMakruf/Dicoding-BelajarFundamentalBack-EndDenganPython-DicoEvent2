@@ -14,6 +14,7 @@ minio = "*"
 pillow = "*"
 decouple = "*"
 python-decouple = "*"
+django-redis = "*"
 
 [dev-packages]
 
