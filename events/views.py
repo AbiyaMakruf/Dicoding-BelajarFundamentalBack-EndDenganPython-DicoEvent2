@@ -22,6 +22,8 @@ from .permissions import (
 )
 from DicoEvent.minio_client import minio_client, BUCKET_NAME
 
+from DicoEvent.logging_config import app_logger
+
 MAX_FILE_SIZE = 500 * 1024  # 500 KB
 
 
@@ -108,7 +110,7 @@ class EventViewSet(viewsets.ModelViewSet):
         serializer = MediaSerializer(media)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-    # 🔹 Ambil semua poster event
+
     @action(detail=True, methods=["get"], url_path="poster")
     def poster(self, request, pk=None):
         event = self.get_object()
@@ -164,7 +166,6 @@ class TicketViewSet(viewsets.ModelViewSet):
         cache.set(cache_key, data, timeout=3600)
         return Response(data)
 
-    # 🔹 [TAMBAHKAN INI] Detail dengan cache Redis
     def retrieve(self, request, *args, **kwargs):
         ticket_id = kwargs.get("pk")
         cache_key = f"ticket:{ticket_id}"
@@ -183,20 +184,18 @@ class TicketViewSet(viewsets.ModelViewSet):
         return Response(data)
 
     def perform_create(self, serializer):
-        cache.delete("tickets:list")  # Hapus cache untuk list
+        cache.delete("tickets:list")
         return serializer.save()
 
-    # 🔹 [UPDATE INI] Hapus cache list dan detail
     def perform_update(self, serializer):
         instance = serializer.save()
-        cache.delete("tickets:list")  # Hapus cache untuk list
-        cache.delete(f"ticket:{instance.id}")  # Hapus cache untuk detail tiket ini
+        cache.delete("tickets:list")
+        cache.delete(f"ticket:{instance.id}")
         return instance
 
-    # 🔹 [UPDATE INI] Hapus cache list dan detail
     def perform_destroy(self, instance):
-        cache.delete("tickets:list")  # Hapus cache untuk list
-        cache.delete(f"ticket:{instance.id}")  # Hapus cache untuk detail tiket ini
+        cache.delete("tickets:list")
+        cache.delete(f"ticket:{instance.id}")
         return super().perform_destroy(instance)
 
 
@@ -226,6 +225,11 @@ class RegistrationViewSet(viewsets.ModelViewSet):
 
         serializer = self.get_serializer(queryset, many=True)
         return Response({"registrations": serializer.data})
+
+    def perform_create(self, serializer):
+        registration = serializer.save(user=self.request.user)
+        app_logger.info(f"Registration {registration.id} created by {self.request.user.username}")
+        return registration
 
 
 # =========================================================

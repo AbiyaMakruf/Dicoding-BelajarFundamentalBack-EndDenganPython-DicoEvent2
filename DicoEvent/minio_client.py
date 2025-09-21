@@ -4,7 +4,6 @@ import os
 from minio import Minio
 from dotenv import load_dotenv
 
-# Load environment variables from .env file
 load_dotenv()
 
 minio_client = Minio(

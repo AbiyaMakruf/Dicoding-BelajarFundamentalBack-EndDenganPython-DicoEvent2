@@ -16,6 +16,7 @@ decouple = "*"
 python-decouple = "*"
 django-redis = "*"
 celery = "*"
+loguru = "*"
 
 [dev-packages]
 
