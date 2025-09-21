@@ -158,3 +158,11 @@ CACHES = {
         "KEY_PREFIX": "dicoevent"
     }
 }
+
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = os.getenv("MAIL_HOST", "smtp.gmail.com")
+EMAIL_PORT = int(os.getenv("MAIL_PORT", 587))
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = os.getenv("MAIL_USER")
+EMAIL_HOST_PASSWORD = os.getenv("MAIL_PASSWORD")
+DEFAULT_FROM_EMAIL = os.getenv("MAIL_USER")
