@@ -10,6 +10,10 @@ dotenv = "*"
 djangorestframework = "*"
 djangorestframework-simplejwt = "*"
 django-filter = "*"
+minio = "*"
+pillow = "*"
+decouple = "*"
+python-decouple = "*"
 
 [dev-packages]
 

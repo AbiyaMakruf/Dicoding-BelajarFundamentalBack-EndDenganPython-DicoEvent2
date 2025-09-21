@@ -54,3 +54,12 @@ class Payment(models.Model):
 
     def __str__(self):
         return f"{self.registration.user.username} - {self.payment_status}"
+
+class Media(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    image = models.CharField(max_length=255)
+    event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name="media")
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.image} ({self.event.name})"

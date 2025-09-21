@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Event, Ticket, Registration, Payment
+from .models import Event, Ticket, Registration, Payment, Media
 
 class EventSerializer(serializers.ModelSerializer):
     organizer_id = serializers.UUIDField(write_only=True, required=True)
@@ -76,3 +76,11 @@ class PaymentSerializer(serializers.ModelSerializer):
         registration_id = validated_data.pop('registration_id')
         payment = Payment.objects.create(registration_id=registration_id, **validated_data)
         return payment
+
+class MediaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Media
+        fields = ["id", "image", "event", "uploaded_at"]
+        extra_kwargs = {
+            "event": {"write_only": True}
+        }
