@@ -1,230 +1,183 @@
-# Proyek Pertama: Dico Event 1
-## Penilaian Proyek
-Proyek ini berhasil mendapatkan bintang 5/5 pada submission dicoding course Belajar Fundamental Back-End Dengan Python.
+# DicoEvent – Django RESTful API
 
-![Penilaian Proyek](README/penilaian_proyek.png)
-
-
-# DicoEvent
-
-RESTful API untuk manajemen **event, ticket, registration, dan payment** menggunakan Django REST Framework + PostgreSQL.
-Proyek ini dibuat untuk memenuhi submission dengan target nilai **Advanced (4 pts)**.
+Proyek ini adalah implementasi RESTful API menggunakan **Django REST Framework** untuk mengelola event, tiket, registrasi, dan pembayaran.
+Dilengkapi dengan fitur autentikasi JWT, Role-Based Access Control (RBAC), upload media (MinIO), caching (Redis), asynchronous task (Celery + Mailtrap), dan logging (loguru).
 
 ---
 
-# Starter
-
-1. Aktifkan virtual environment:
-
-   ```bash
-   pipenv shell
-   ```
-
-2. Install dependency:
-
-   ```bash
-   pipenv install django==4.2 djangorestframework psycopg2-binary python-decouple djangorestframework-simplejwt django-filter
-   ```
-
-3. Buat project Django:
-
-   ```bash
-   django-admin startproject DicoEvent .
-   ```
-
-4. Buat database PostgreSQL:
-
-   ```sql
-   psql -U postgres
-   CREATE DATABASE dico_event;
-   GRANT ALL PRIVILEGES ON DATABASE "dico_event" TO developer;
-   ALTER DATABASE "dico_event" OWNER TO developer;
-   ```
-
-5. Buat file `.env` di root project:
-
-   ```env
-   DATABASE_NAME=dico_event
-   DATABASE_USER=developer
-   DATABASE_PASSWORD=your_password
-   DATABASE_HOST=localhost
-   DATABASE_PORT=5432
-   SECRET_KEY=django-insecure-ganti-dengan-yang-aman
-   DEBUG=True
-   ```
-
-6. Migrasi awal:
-
-   ```bash
-   python manage.py migrate
-   ```
-
----
-
-# Ketentuan Project
-
-## Pengantar
-
-Setiap kriteria dapat bernilai **0 sampai 4 points (pts)**.
-Untuk lulus, minimal **2 points per kriteria**. Submission ditolak jika ada kriteria dengan **0 points**.
-
----
-
-## Kriteria 1: Menggunakan Database untuk Menyimpan Data
-
-### Reject (0 pts)
-
-* Data tidak disimpan di database apa pun.
-* Tidak ada konfigurasi database atau konfigurasi yang salah.
-* Menggunakan database selain PostgreSQL.
-* Terdapat error dalam pengujian mandatory Postman.
-
-### Basic (2 pts)
-
-* Data berhasil disimpan di PostgreSQL.
-* Menggunakan Django ORM dasar (CRUD).
-* Semua pengujian mandatory Postman tidak error.
-
-### Skilled (3 pts)
-
-* Memenuhi ketentuan sebelumnya.
-* Database dinormalisasi, ada relasi antar tabel.
-* Terdapat ERD dengan nama `ERD-DicoEvent-versi-1.png`.
-* Ada unique constraint, misalnya pada field **email** di tabel users.
-
-### Advanced (4 pts)
-
-* Memenuhi ketentuan sebelumnya.
-* Kredensial database disimpan di **environment variables** (`DATABASE_NAME`, `DATABASE_USER`, `DATABASE_PASSWORD`, `DATABASE_HOST`, `DATABASE_PORT`).
-* Menggunakan Django ORM lanjutan: **limit, ordering, filter**.
-* Menggunakan UUID sebagai primary key.
-* Semua pengujian Postman (mandatory & optional) lolos tanpa error.
-
----
-
-## Kriteria 2: Menerapkan Autentikasi dan Otorisasi pada RESTful API Django
-
-### Reject (0 pts)
-
-* Tidak ada autentikasi/otorisasi.
-* Menggunakan session/cookies (salah metode).
-* Tidak ada RBAC.
-* Terdapat error dalam pengujian mandatory Postman.
-
-### Basic (2 pts)
-
-* Implementasi autentikasi JWT.
-* RBAC role dasar: **user**, **admin**, **superuser**.
-
-  * **Superuser**: akses penuh.
-  * **Admin**: CRUD Event, Ticket, Registration, Payment.
-  * **User**: daftar/login, lihat Event & Ticket, CRUD Registration & Payment (hanya miliknya).
-* Semua pengujian mandatory Postman tidak error.
-
-### Skilled (3 pts)
-
-* Memenuhi ketentuan sebelumnya.
-* JWT Access Token berlaku **3 jam**.
-* JWT diatur sebagai default authentication di `settings.py`.
-
-### Advanced (4 pts)
-
-* Memenuhi ketentuan sebelumnya.
-* Membuat **custom User model**.
-* RBAC mencakup role tambahan **organizer**:
-
-  * Organizer hanya bisa kelola event miliknya.
-* Ada **custom permission** di views.
-* Semua pengujian Postman (mandatory & optional) lolos tanpa error.
-
----
-
-# Tips Menjalankan Project
-
-1. **Run server**
-
-   ```bash
-   python manage.py runserver
-   ```
-
-2. **Buat superuser**
-
-   ```bash
-   python manage.py createsuperuser
-   ```
-
-3. **Testing API**
-
-   * Import file Postman dari folder `postman/`.
-   * Gunakan environment `[788] DicoEvent.postman_environment.json`.
-   * Jalankan semua test (mandatory & optional).
-
-4. **ERD**
-
-   * Simpan file ERD di root project dengan nama `ERD-DicoEvent-versi-1.png`.
-
----
-
-# Tips Maintenance & Truncate
-
-Kadang perlu reset data agar tidak bentrok saat testing ulang. Pilihan:
-
-### Truncate Semua Data
+## 🚀 Starter
 
 ```bash
-python manage.py flush
+# masuk ke environment
+pipenv shell
+
+# install dependencies
+pipenv install django==4.2 djangorestframework psycopg2-binary python-dotenv
+pipenv install celery redis loguru minio
 ```
 
-* Menghapus semua data termasuk superuser.
-* Migrasi tetap ada.
-
-### Hapus Semua Data Kecuali Superuser
-
-Masuk Django shell:
+Buat project:
 
 ```bash
-python manage.py shell
+django-admin startproject DicoEvent .
 ```
 
-Lalu jalankan:
+---
 
-```python
-from users.models import User
-from events.models import Event, Ticket, Registration, Payment
-
-# hapus semua user kecuali superuser
-User.objects.exclude(is_superuser=True).delete()
-
-# hapus semua data event dkk
-Event.objects.all().delete()
-Ticket.objects.all().delete()
-Registration.objects.all().delete()
-Payment.objects.all().delete()
-```
-
-### Drop Database (reset total)
-
-Jika migrasi rusak:
+## 🗄️ Database Setup (PostgreSQL)
 
 ```sql
-DROP DATABASE dico_event;
+psql -U postgres
 CREATE DATABASE dico_event;
-GRANT ALL PRIVILEGES ON DATABASE dico_event TO developer;
-ALTER DATABASE dico_event OWNER TO developer;
+GRANT ALL PRIVILEGES ON DATABASE "dico_event" TO developer;
+ALTER DATABASE "dico_event" OWNER TO developer;
 ```
 
-Lalu migrate ulang:
+Tambahkan konfigurasi di `.env`:
+
+```env
+DATABASE_NAME=dico_event
+DATABASE_USER=developer
+DATABASE_PASSWORD=yourpassword
+DATABASE_HOST=localhost
+DATABASE_PORT=5432
+```
+
+---
+
+## 🔑 Autentikasi & RBAC
+
+* JWT Authentication (3 jam expiry).
+* Role:
+
+  * **Superuser** → full access.
+  * **Admin** → CRUD Event, Ticket, Registration, Payment.
+  * **Organizer** → CRUD Event miliknya.
+  * **User** → daftar/login, lihat Event, beli Ticket, buat Registration, Payment.
+
+---
+
+## 🖼️ Upload Media (MinIO)
+
+* Validasi file:
+
+  * Max size: **500 KB**.
+  * MIME type: **image/** only.
+* Simpan metadata di tabel `Media`.
+* File tersimpan di **MinIO**.
+* Credential di `.env`:
+
+```env
+MINIO_ENDPOINT_URL=http://localhost:9000
+MINIO_ACCESS_KEY=youraccesskey
+MINIO_SECRET_KEY=yoursecretkey
+```
+
+Endpoint:
+
+* `POST /api/events/upload/` → upload poster.
+* `GET /api/events/{eventId}/poster/` → ambil semua poster untuk event.
+
+---
+
+## ⚡ Caching (Redis)
+
+* Caching di endpoint:
+
+  * `GET /api/events/{id}/` → detail event.
+  * `GET /api/tickets/` → list tickets.
+* Cache disimpan 1 jam.
+* Header tambahan: `X-Data-Source: cache` bila data dari cache.
+* Cache invalidated saat update/delete.
+* Credential di `.env`:
+
+```env
+REDIS_HOST=localhost
+```
+
+---
+
+## 📧 Asynchronous Task (Celery + Mailtrap)
+
+* Celery dipakai untuk kirim email reminder **H-2 jam** sebelum event.
+* Gunakan Mailtrap sebagai SMTP testing.
+
+Konfigurasi `.env`:
+
+```env
+CELERY_BROKER_URL=redis://localhost:6379/0
+
+MAIL_HOST=sandbox.smtp.mailtrap.io
+MAIL_PORT=587
+MAIL_USER=f39186826022c5
+MAIL_PASSWORD=yourmailtrappassword
+```
+
+Jalankan worker:
 
 ```bash
+celery -A DicoEvent worker -l info -P solo
+```
+
+---
+
+## 📜 Logging (loguru)
+
+* Semua log ada di folder `logs/`.
+* `application.log` → level INFO.
+* `error.log` → level ERROR.
+* Format log:
+
+  ```
+  2025-06-08 14:41:43.260 | INFO     | reservations.views:post:31 - Registration ... created by user ...
+  ```
+* File rotation otomatis **setiap 1 hari**.
+
+---
+
+## 🧪 Pengujian
+
+* Koleksi Postman: tersedia di folder `/postman`.
+* Semua mandatory & optional test sudah dipenuhi.
+
+---
+
+## 💡 Tips
+
+### Menjalankan Project
+
+```bash
+python manage.py runserver
+```
+
+### Jalankan Migration
+
+```bash
+python manage.py makemigrations
 python manage.py migrate
 ```
 
+### Buat Superuser
+
+```bash
+python manage.py createsuperuser
+```
+
+### Jalankan Celery
+
+```bash
+celery -A DicoEvent worker -l info -P solo
+```
+
+### Truncate Data (kecuali superuser)
+
+```sql
+TRUNCATE TABLE events_event, events_ticket, events_registration, events_payment, events_media RESTART IDENTITY CASCADE;
+```
+
 ---
 
-# Pengujian
+## 📌 Catatan
 
-* Koleksi Postman tersedia di folder `postman/`.
-* Gunakan environment `[788] DicoEvent.postman_environment.json`.
-* Semua test **mandatory & optional** harus **PASS** untuk mendapat nilai Advanced.
-
----
+* Gunakan `-P solo` di Windows untuk menjalankan Celery (prefork hanya jalan di Linux/WSL/Docker).
+* Untuk tes reminder, buat event dummy dengan `start_time = timezone.now() + timedelta(hours=2)` lalu jalankan task `send_event_reminders.delay()`.
