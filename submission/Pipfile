@@ -1,0 +1,24 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+django = "==4.2"
+psycopg2 = "*"
+dotenv = "*"
+djangorestframework = "*"
+djangorestframework-simplejwt = "*"
+django-filter = "*"
+minio = "*"
+pillow = "*"
+decouple = "*"
+python-decouple = "*"
+django-redis = "*"
+celery = "*"
+loguru = "*"
+
+[dev-packages]
+
+[requires]
+python_version = "3.13"
