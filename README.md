@@ -1,3 +1,9 @@
+# Proyek Akhir: Dico Event 2
+## Penilaian Proyek
+Proyek ini berhasil mendapatkan bintang 5/5 pada submission dicoding course Belajar Fundamental Back-End Dengan Python.
+
+![Penilaian Proyek](README/penilaian_proyek.png)
+
 # DicoEvent – Django RESTful API
 
 Proyek ini adalah implementasi RESTful API menggunakan **Django REST Framework** untuk mengelola event, tiket, registrasi, dan pembayaran.
